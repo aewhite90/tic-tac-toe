@@ -1,5 +1,3 @@
-Tic Tac Toe
+Tic-Tac-Toe Game
 
-Made for The Odin Project
-
-Attempt number 2, last one didn't work and I did not comment well enough to source issues
+Tic-Tac-Toe built for the Odin Project to practice using factory functions in place of constructors.  Also built in AI to play against, capable of playing as either X or O.
