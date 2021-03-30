@@ -100,10 +100,8 @@ header {
 .board-container {
   position: fixed;
   display: grid;
-  grid-template:
-              'a b c' 1fr
-              'a b c' 1fr
-              'a b c' 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
   top: 55%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -118,6 +116,9 @@ header {
   color: var(--f-violet);
   border: 1px solid var(--f-violet);
   font-size: 50px;
+  width: 133.3px;
+  height: 133.3px;
+  justify-content: center;
   font-family: "Righteous";
 }
 
@@ -130,19 +131,19 @@ header {
   color: var(--f-violet);
 }
 
-#btn1, #btn2, #btn3 {
+.btn1, .btn2, .btn3 {
   border-top: none;
 }
 
-#btn1, #btn4, #btn7 {
+.btn1, .btn4, .btn7 {
   border-left: none;
 }
 
-#btn7, #btn8, #btn9 {
+.btn7, .btn8, .btn9 {
   border-bottom: none;
 }
 
-#btn3, #btn6, #btn9 {
+.btn3, .btn6, .btn9 {
   border-right: none;
 }
 
@@ -192,7 +193,7 @@ header {
   color: var(--f-violet);
 }
 
-#footer {
+.footer {
   color: var(--c-blue);
   position: fixed;
   left: 0;

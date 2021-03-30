@@ -1,22 +1,22 @@
-
 const Gameboard = (() => {
   let boardArray = ['','','','','','','','',''];
-  const gameBoard = document.querySelector('#board');
-  const spaces = Array.from(document.querySelectorAll('.play-btn'));
-  let winner = null;
-
-  const render = () => {
-    boardArray.forEach((marker, num) => {
-      spaces[num].textContent = boardArray[num];
-    });
-  };
+  // let boardArray = ['X','O','X','O','X','O','O','X','O'];
 
   const reset = () => {
     boardArray = ['','','','','','','','',''];
+    winner = null;
   }
 
-  const checkWin = () => {
-    const winningMoves = [
+  // const getMove = (index) => {
+  //   return boardArray[index];
+  // };
+
+  const setMove = (index, marker) => {
+    boardArray[index] = marker;
+  };
+
+  const winCheck = () => {
+    const winCombos = [
       [0,1,2],
       [3,4,5],
       [6,7,8],
@@ -24,94 +24,101 @@ const Gameboard = (() => {
       [1,4,7],
       [2,5,8],
       [0,4,8],
-      [2,4,6],
+      [2,4,6]
     ];
 
-    winningMoves.forEach((win) => {
-      if (boardArray[win[0]] && boardArray[win[0]] === boardArray[win[1]] && boardArray[win[0]] === boardArray[win[2]]) {
-        console.log(boardArray[win[0]],boardArray[win[1]],boardArray[win[2]]);
-        winner = 'current';
-      }
+    let winner = null;
+
+    winCombos.forEach(combo => {
+      if (boardArray[combo[0]] !== '' &&
+          boardArray[combo[0]] === boardArray[combo[1]] &&
+          boardArray[combo[0]] === boardArray[combo[2]]) {
+          winner = 'currentPlayer';
+        }
     });
-    return winner || (boardArray.includes('') ? null : 'Tie');
+
+    if (!boardArray.includes('') && winner === null) winner = 'Tie';
+    console.log('Gameboard: ', winner);
+    return winner;
   };
-  return {
-    render, gameBoard, spaces, boardArray, checkWin, reset,
-  }
+
+  return { setMove, boardArray, winCheck, reset };
 })();
 
 const Players = (marker) => {
-  const playTurn = (board, space) => {
-    const num = board.spaces.findIndex(position => position === space);
-    if (board.boardArray[num] === '') {
-      board.render();
-      return num;
-    }
-    return null;
-  };
-  return { marker, playTurn };
-}
+  return { marker }
+};
 
-const Gameflow = (() => {
-  const gameBoard = document.querySelector('.board');
+const displayController = (() => {
+  const playerOne = Players('X');
+  const playerTwo = Players('O');
+  let currentPlayer = playerOne;
+  const playing = Array.from(document.querySelectorAll('.players p'));
+  const gameOver = document.querySelector('.winner');
+  const endMessage = document.querySelector('.endMessage');
+  const spaces = Array.from(document.querySelectorAll('.play-btn'));
   const resetButton = document.querySelector('.rst-btn');
-  const playButton = document.querySelector('.play-btn');
-  const playSelectiosn = document.querySelectorAll('.choice-btn');
-  const results = document.querySelector('.winner');
-  let currentPlayer;
-  let playerX = {marker: 'X'};
-  let playerO = {marker: 'O'};
+  let isDone = false;
 
-  const newTurn = () => {
-    currentPlayer = (currentPlayer === playerX) ? playerO : playerX;
+  const updateBoard = (e) => {
+    console.log(gameEnd());
+    if (gameEnd()) return;
+    let index = e.target.id;
+    Gameboard.setMove(index, currentPlayer.marker);
+    spaces[index].textContent = currentPlayer.marker;
+    gameOverMessage();
+    currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+    playerDisplay();
   };
 
-  const gameRound = () => {
-    const _board = Gameboard;
-    const playersTurn = Array.from(document.querySelectorAll('.players p'));
-
-    if (currentPlayer === playerX) {
-      playersTurn[0].classList.remove('active');
-      playersTurn[1].classList.add('active');
-    } else {
-      playersTurn[1].classList.remove('active');
-      playersTurn[0].classList.add('active');
-    };
-
-    _board.spaces.addEventListener('click', (e) => {
-      console.log(e);
-      e.preventDefault();
-      const play = currentPlayer.playTurn(_board, e.target);
-      if (play !== null) {
-        _board.boardArray[play] = `${currentPlayer.marker}`;
-        _board.render();
-        const winStatus = _board.checkWin();
-        if (winStatus === "Tie") {
-          results.classList.style = 'block';
-          results.firstChild.textConent = 'Tie';
-        } else if (winStatus = null) {
-          newTurn();
-        } else {
-          results.classList.style = 'block';
-          results.firstChild.textConent = `${currentPlayer.marker} Wins`;
-          _board.reset();
-          _board.render();
-        }
+  const playerDisplay = () => {
+    playing.forEach(player => {
+      if (player.classList.contains('active')) {
+        player.classList.remove('active');
+      } else {
+        player.classList.add('active');
       }
     })
   }
 
-  const gameStart = () => {
-    gameRound();
+  const gameOverMessage = () => {
+    let winner = Gameboard.winCheck();
+    console.log('displayController: ', winner);
+    if (winner === 'Tie') {
+      gameOver.style.display = 'block';
+      endMessage.textContent = 'The game is a draw!';
+    } else if (winner === 'currentPlayer') {
+      gameOver.style.display = 'block';
+      endMessage.textContent = `${currentPlayer.marker} Wins!`;
+    } else {
+      console.log(endMessage)
+      gameOver.style.display = 'none';
+      endMessage.textContent = '';
+    };
+    gameEnd(winner);
+  };
+
+  const gameEnd = (winner) => {
+    if (winner === 'Tie' || winner === 'currentPlayer') {
+      isDone = true;
+    }
+    return isDone;
   }
 
-  playButton.addEventListener('click', (e) => {
-    console.log(e);
-    start.classList.add('hidden');
-    gameRound();
-  })
+  const reset = () => {
+    Gameboard.reset();
+    if (currentPlayer === playerTwo) playerDisplay();
+    currentPlayer = playerOne;
+    gameOver.style.display = 'none';
+    endMessage.textContent = '';
+    for (let i = 0; i < spaces.length; i++) {
+      spaces[i].textContent = '';
+    }
+    isDone = false;
+  }
 
-  resetButton.addEventListener('click', (e) => {
-    window.location.reload();
-  })
+  spaces.forEach(space => space.addEventListener('click', updateBoard));
+  resetButton.addEventListener('click',reset);
+
+  return { updateBoard, gameOverMessage, reset }
 })();
