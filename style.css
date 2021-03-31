@@ -13,6 +13,19 @@ body {
     display: flex;
 }
 
+.selection {
+  background-color: var(--af-white);
+  position: fixed;
+  display: flex;
+  align-items: center;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 62vh;
+  width: 50%;
+  z-index: 1;
+}
+
 header {
   display: block;
   text-align: center;
@@ -35,7 +48,7 @@ header {
   transform: translate(-50%,-50%);
 }
 
-.players {
+.players, #playerX, #playerO {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 10px;
@@ -51,32 +64,6 @@ header {
   background-color: var(--h-purple);
   color: var(--af-white);
   border-radius: 50%;
-}
-
-.start-btn {
-  position: fixed;
-  top: 25%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-}
-
-#start {
-  background-color: var(--f-violet);
-  color: var(--af-white);
-  border: 2px solid var(--f-violet);
-  border-radius: 1em;
-  margin-bottom: 10px;
-  font-family: "Righteous";
-  font-size: 25px;
-}
-
-#start:hover {
-  cursor: pointer;
-}
-
-#start:active {
-  background-color: var(--af-white);
-  color: var(--f-violet);
 }
 
 .choice-btn {
@@ -174,7 +161,7 @@ header {
   transform: translate(-50%,-50%);
 }
 
-.rst-btn {
+.rst-btn, #start-btn {
   background-color: var(--f-violet);
   color: var(--af-white);
   border: 2px solid var(--f-violet);
@@ -184,11 +171,16 @@ header {
   font-family: "Righteous";
 }
 
-.rst-btn:hover {
+.rst-btn:hover, #start-btn:hover {
   cursor: pointer;
 }
 
-.rst-btn:active {
+.rst-btn:active, #start-btn:active {
+  background-color: var(--af-white);
+  color: var(--f-violet);
+}
+
+.activated {
   background-color: var(--af-white);
   color: var(--f-violet);
 }

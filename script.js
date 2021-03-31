@@ -7,9 +7,9 @@ const Gameboard = (() => {
     winner = null;
   }
 
-  // const getMove = (index) => {
-  //   return boardArray[index];
-  // };
+  const getMove = (index) => {
+    return boardArray[index];
+  };
 
   const setMove = (index, marker) => {
     boardArray[index] = marker;
@@ -38,15 +38,15 @@ const Gameboard = (() => {
     });
 
     if (!boardArray.includes('') && winner === null) winner = 'Tie';
-    console.log('Gameboard: ', winner);
     return winner;
   };
 
-  return { setMove, boardArray, winCheck, reset };
+  return { setMove, getMove, boardArray, winCheck, reset };
 })();
 
 const Players = (marker) => {
-  return { marker }
+  const type = '';
+  return { marker, type }
 };
 
 const displayController = (() => {
@@ -58,17 +58,79 @@ const displayController = (() => {
   const endMessage = document.querySelector('.endMessage');
   const spaces = Array.from(document.querySelectorAll('.play-btn'));
   const resetButton = document.querySelector('.rst-btn');
+  const startButton = document.querySelector('#start-btn');
+  const choices = Array.from(document.querySelectorAll('.choice-btn'));
+  const selection = document.querySelector('.selection');
+  resetButton.style.display = 'none';
   let isDone = false;
 
+  const activate = (e) => {
+    let choice = e.target.id;
+    if (choice === 'p1hum') {
+      choices[0].classList.add('activated');
+      choices[1].classList.remove('activated');
+    } else if (choice === 'p1ai') {
+      choices[1].classList.add('activated');
+      choices[0].classList.remove('activated');
+    } else if (choice === 'p2hum') {
+      choices[2].classList.add('activated');
+      choices[3].classList.remove('activated');
+    } else if (choice === 'p2ai') {
+      choices[3].classList.add('activated');
+      choices[2].classList.remove('activated');
+    }
+    return choices;
+  }
+
+  const start = () => {
+    startButton.style.display = 'none';
+    resetButton.style.display = 'block';
+    selection.style.display = 'none';
+    if (choices[1].classList.contains('activated')) {
+      playerOne.type = 'ai';
+    } else {
+      playerOne.type = 'human';
+    }
+    if (choices[3].classList.contains('activated')) {
+      playerTwo.type = 'ai';
+    } else {
+      playerTwo.type = 'human';
+    }
+    aiMoves();
+  }
+
+  const playerSwitch = () => {
+    if (isDone === true) return;
+    currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+    console.log(currentPlayer);
+    playerDisplay();
+  }
+
+  const aiMoves = () => {
+    if (currentPlayer.type === 'human') return;
+    if (gameEnd()) return;
+    let played;
+    for (let i = 0; i < 9; i++) {
+      if (Gameboard.getMove(i) === '' && played !== currentPlayer.marker) {
+        Gameboard.setMove(i, currentPlayer.marker);
+        spaces[i].textContent = currentPlayer.marker;
+        played = currentPlayer.marker;
+        gameOverMessage();
+        playerSwitch();
+        aiMoves();
+        return;
+      }
+    }
+  }
+
   const updateBoard = (e) => {
-    console.log(gameEnd());
     if (gameEnd()) return;
     let index = e.target.id;
     Gameboard.setMove(index, currentPlayer.marker);
     spaces[index].textContent = currentPlayer.marker;
     gameOverMessage();
-    currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
-    playerDisplay();
+    playerSwitch();
+    aiMoves();
   };
 
   const playerDisplay = () => {
@@ -83,7 +145,6 @@ const displayController = (() => {
 
   const gameOverMessage = () => {
     let winner = Gameboard.winCheck();
-    console.log('displayController: ', winner);
     if (winner === 'Tie') {
       gameOver.style.display = 'block';
       endMessage.textContent = 'The game is a draw!';
@@ -91,7 +152,6 @@ const displayController = (() => {
       gameOver.style.display = 'block';
       endMessage.textContent = `${currentPlayer.marker} Wins!`;
     } else {
-      console.log(endMessage)
       gameOver.style.display = 'none';
       endMessage.textContent = '';
     };
@@ -115,10 +175,13 @@ const displayController = (() => {
       spaces[i].textContent = '';
     }
     isDone = false;
+    aiMoves();
   }
 
   spaces.forEach(space => space.addEventListener('click', updateBoard));
-  resetButton.addEventListener('click',reset);
+  choices.forEach(choice => choice.addEventListener('click', activate));
+  resetButton.addEventListener('click', reset);
+  startButton.addEventListener('click', start);
 
-  return { updateBoard, gameOverMessage, reset }
+  return { updateBoard, gameOverMessage, reset, currentPlayer, aiMoves }
 })();
